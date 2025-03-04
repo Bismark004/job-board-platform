@@ -1,55 +1,55 @@
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { useState, useEffect } from 'react';
+import JobCard from '@/components/JobCard';
 
-export default function JobDetails() {
-  const router = useRouter();
-  const { id } = router.query;
-  const [job, setJob] = useState<any>(null);
+// Define the Job interface to match your data structure
+interface Job {
+  id: number;
+  title: string;
+  company: string;
+  location: string;
+  salary: string;
+  type: string;
+}
+
+export default function JobsListing() {
+  const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (id) {
-      fetch(`/api/jobs/${id}`) // Fetch job by ID
-        .then((res) => res.json())
-        .then((data) => {
-          setJob(data);
-          setLoading(false);
-        })
-        .catch(() => {
-          setLoading(false);
-        });
+    async function fetchJobs() {
+      try {
+        const response = await fetch('@/pages/api/jobs/[id]');
+        if (!response.ok) {
+          throw new Error('Failed to fetch jobs');
+        }
+        const data = await response.json();
+        setJobs(data);
+        setLoading(false);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        setLoading(false);
+      }
     }
-  }, [id]);
 
-  if (loading) return <p>Loading...</p>;
-  if (!job) return <p>Job not found.</p>;
+    fetchJobs();
+  }, []);
+
+  if (loading) return <div className="text-center py-10">Loading jobs...</div>;
+  if (error) return <div className="text-center text-red-500 py-10">{error}</div>;
 
   return (
-    <div className="p-6 max-w-3xl mx-auto bg-gray-100">
-      <button onClick={() => router.push("/jobs")} className="flex items-center text-blue-600 mb-4">
-        <ArrowLeft className="mr-2" /> Back to Jobs
-      </button>
-      <h1 className="text-3xl font-bold">{job.title}</h1>
-      <p className="text-lg font-semibold">{job.company}</p>
-      <p>{job.location}</p>
-      <p>{job.salary}</p>
-      <p>{job.type}</p>
-      <p className="mt-4">{job.description}</p>
-
-      <h2 className="text-xl font-semibold mt-6">Requirements</h2>
-      <ul className="list-disc pl-6 mt-2">
-        {job.requirements.map((req: string, index: number) => (
-          <li key={index}>{req}</li>
-        ))}
-      </ul>
-      
-      <div className="mt-6 flex gap-4">
-        <button className="bg-blue-500 text-white px-4 py-2 rounded-lg">Apply Now</button>
-        <button className="border border-blue-500 text-blue-500 px-4 py-2 rounded-lg">
-          Save Job
-        </button>
-      </div>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold text-center mb-8">Available Jobs</h1>
+      {jobs.length === 0 ? (
+        <p className="text-center">No jobs found.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {jobs.map((job) => (
+            <JobCard key={job.id} job={job} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

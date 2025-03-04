@@ -24,12 +24,10 @@ const jobs = [
 ];
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { id } = req.query;
-  const job = jobs.find((job) => job.id === Number(id));
-
-  if (!job) {
-    return res.status(404).json({ message: "Job not found" });
+  if (req.method === 'GET') {
+    res.status(200).json(jobs);
+  } else {
+    res.setHeader('Allow', ['GET']);
+    res.status(405).end(`Method ${req.method} Not Allowed`);
   }
-
-  res.status(200).json(job);
 }
