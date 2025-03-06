@@ -10,7 +10,7 @@ interface Job {
   salary: string;
   type: string;
   description: string;
-  requirements: string[];
+  requirements?: string[]; // Optional in case it's missing from the API response
 }
 
 export default function JobDetails() {
@@ -21,20 +21,26 @@ export default function JobDetails() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!id) return; // Ensure we have an ID before making the request
+
     async function fetchJobDetails() {
-      if (id) {
-        try {
-          const response = await fetch(`/api/jobs/${id}`);
-          if (!response.ok) {
-            throw new Error('Job not found');
-          }
-          const data = await response.json();
-          setJob(data);
-          setLoading(false);
-        } catch (err) {
-          setError(err instanceof Error ? err.message : 'An unknown error occurred');
-          setLoading(false);
+      console.log("Fetching job details for ID:", id); // Debugging
+
+      try {
+        const response = await fetch(`/api/jobs/${id}`);
+        const data = await response.json();
+
+        console.log("Fetched job data:", data); // Debugging
+
+        if (!response.ok) {
+          throw new Error(data.message || "Job not found");
         }
+
+        setJob(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An unknown error occurred");
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -72,9 +78,11 @@ export default function JobDetails() {
 
           <h2 className="text-2xl font-semibold mb-4">Requirements</h2>
           <ul className="list-disc list-inside space-y-2 text-gray-700">
-            {job.requirements.map((req, index) => (
-              <li key={index}>{req}</li>
-            ))}
+            {job.requirements?.length ? (
+              job.requirements.map((req, index) => <li key={index}>{req}</li>)
+            ) : (
+              <li>No specific requirements listed.</li>
+            )}
           </ul>
         </div>
 

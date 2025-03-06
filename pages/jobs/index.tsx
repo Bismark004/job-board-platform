@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import JobCard from '@/components/JobCard';
 
-// Define the Job interface to match your data structure
 interface Job {
   id: number;
   title: string;
@@ -19,15 +18,15 @@ export default function JobsListing() {
   useEffect(() => {
     async function fetchJobs() {
       try {
-        const response = await fetch('/api/jobs/[id]');
+        const response = await fetch('/api/jobs'); // ✅ Correct endpoint
         if (!response.ok) {
           throw new Error('Failed to fetch jobs');
         }
         const data = await response.json();
         setJobs(data);
-        setLoading(false);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      } finally {
         setLoading(false);
       }
     }
@@ -53,3 +52,4 @@ export default function JobsListing() {
     </div>
   );
 }
+   
