@@ -16,40 +16,37 @@ export default function JobsListing() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchJobs() {
+    const fetchJobs = async () => {
       try {
-        const response = await fetch('/api/jobs'); // ✅ Correct endpoint
+        const response = await fetch('/api/jobs');
+        
         if (!response.ok) {
-          throw new Error('Failed to fetch jobs');
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
+
         const data = await response.json();
         setJobs(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        setError(err instanceof Error ? err.message : 'Failed to fetch jobs');
       } finally {
         setLoading(false);
       }
-    }
+    };
 
     fetchJobs();
   }, []);
 
   if (loading) return <div className="text-center py-10">Loading jobs...</div>;
-  if (error) return <div className="text-center text-red-500 py-10">{error}</div>;
+  if (error) return <div className="text-center text-red-500 py-10">Error: {error}</div>;
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-center mb-8">Available Jobs</h1>
-      {jobs.length === 0 ? (
-        <p className="text-center">No jobs found.</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {jobs.map((job) => (
-            <JobCard key={job.id} job={job} />
-          ))}
-        </div>
-      )}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {jobs.map((job) => (
+          <JobCard key={job.id} job={job} />
+        ))}
+      </div>
     </div>
   );
 }
-   

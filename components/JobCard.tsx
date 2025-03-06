@@ -11,14 +11,17 @@ interface Job {
 
 export default function JobCard({ job }: { job: Job }) {
   return (
-    <div className="p-4 border rounded-lg shadow-lg bg-white">
-      <h2 className="text-xl font-bold">{job.title}</h2>
-      <p className="text-sm">{job.company}</p>
-      <p>{job.location}</p>
-      <p>{job.salary}</p>
-      <p>{job.type}</p>
+    <div className="p-4 border rounded-lg shadow-lg bg-white hover:shadow-xl transition-shadow">
+      <h2 className="text-xl font-bold mb-2">{job.title}</h2>
+      <p className="text-gray-600 text-sm mb-2">{job.company}</p>
+      <div className="flex items-center gap-2 text-sm mb-3">
+        <span>{job.location}</span>
+        <span>•</span>
+        <span>{job.type}</span>
+      </div>
+      <p className="font-medium text-blue-600">{job.salary}</p>
       <Link href={`/jobs/${job.id}`}>
-        <button className="mt-4 bg-[#1f3c88] text-[#f6f5f5] hover:bg-[#ee6f57] p-2 rounded-lg">
+        <button className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
           View Details
         </button>
       </Link>

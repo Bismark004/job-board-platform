@@ -1,4 +1,4 @@
-// pages/applications.tsx
+
 const ApplicationsPage = () => {
     return (
       <div>

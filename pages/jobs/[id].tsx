@@ -10,7 +10,7 @@ interface Job {
   salary: string;
   type: string;
   description: string;
-  requirements?: string[]; // Optional in case it's missing from the API response
+  requirements: string[];
 }
 
 export default function JobDetails() {
@@ -21,40 +21,36 @@ export default function JobDetails() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!id) return; // Ensure we have an ID before making the request
+    if (!id) return;
 
-    async function fetchJobDetails() {
-      console.log("Fetching job details for ID:", id); // Debugging
-
+    const fetchJob = async () => {
       try {
         const response = await fetch(`/api/jobs/${id}`);
-        const data = await response.json();
-
-        console.log("Fetched job data:", data); // Debugging
-
+        
         if (!response.ok) {
-          throw new Error(data.message || "Job not found");
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
 
+        const data = await response.json();
         setJob(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An unknown error occurred");
+        setError(err instanceof Error ? err.message : 'Failed to fetch job');
       } finally {
         setLoading(false);
       }
-    }
+    };
 
-    fetchJobDetails();
+    fetchJob();
   }, [id]);
 
   if (loading) return <div className="text-center py-10">Loading job details...</div>;
-  if (error) return <div className="text-center text-red-500 py-10">{error}</div>;
+  if (error) return <div className="text-center text-red-500 py-10">Error: {error}</div>;
   if (!job) return <div className="text-center py-10">Job not found</div>;
 
   return (
-    <div className="p-6 max-w-3xl mx-auto bg-gray-100 min-h-screen">
+    <div className="p-6 max-w-3xl mx-auto bg-gray-50 min-h-screen">
       <button 
-        onClick={() => router.push("/jobs")} 
+        onClick={() => router.back()}
         className="flex items-center text-blue-600 mb-4 hover:text-blue-800 transition-colors"
       >
         <ArrowLeft className="mr-2" /> Back to Jobs
@@ -62,37 +58,31 @@ export default function JobDetails() {
       
       <div className="bg-white p-8 rounded-lg shadow-md">
         <h1 className="text-3xl font-bold mb-4">{job.title}</h1>
-        
-        <div className="mb-4">
+        <div className="mb-6">
           <p className="text-lg font-semibold">{job.company}</p>
-          <div className="flex space-x-4 text-gray-600 mt-2">
+          <div className="flex gap-4 mt-2 text-gray-600">
             <span>{job.location}</span>
-            <span>{job.salary}</span>
+            <span>•</span>
             <span>{job.type}</span>
+            <span>•</span>
+            <span className="font-medium">{job.salary}</span>
           </div>
         </div>
 
-        <div className="border-t pt-6 mt-6">
-          <h2 className="text-2xl font-semibold mb-4">Job Description</h2>
-          <p className="text-gray-700 mb-6">{job.description}</p>
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-2xl font-semibold mb-3">Description</h2>
+            <p className="text-gray-700 leading-relaxed">{job.description}</p>
+          </div>
 
-          <h2 className="text-2xl font-semibold mb-4">Requirements</h2>
-          <ul className="list-disc list-inside space-y-2 text-gray-700">
-            {job.requirements?.length ? (
-              job.requirements.map((req, index) => <li key={index}>{req}</li>)
-            ) : (
-              <li>No specific requirements listed.</li>
-            )}
-          </ul>
-        </div>
-
-        <div className="mt-8 flex space-x-4">
-          <button className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors">
-            Apply Now
-          </button>
-          <button className="border border-blue-500 text-blue-500 px-6 py-3 rounded-lg hover:bg-blue-50 transition-colors">
-            Save Job
-          </button>
+          <div>
+            <h2 className="text-2xl font-semibold mb-3">Requirements</h2>
+            <ul className="list-disc list-inside space-y-2 text-gray-700">
+              {job.requirements.map((req, index) => (
+                <li key={index}>{req}</li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </div>
