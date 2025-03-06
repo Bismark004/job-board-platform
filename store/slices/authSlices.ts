@@ -8,12 +8,14 @@ interface User {
 interface AuthState {
     user: User | null;
     token: string | null;
+    isAuthenticated: boolean;
 
 };
 
 const initialState: AuthState = {
     user: null,
     token: null,
+    isAuthenticated: false,
 };
 
 const authSlice = createSlice({
@@ -23,6 +25,7 @@ const authSlice = createSlice({
         setCredentials: (state, action: PayloadAction<{ user: User; token: string}>) => {
             state.user = action.payload.user;
             state.token = action.payload.token;
+            state.isAuthenticated = true;
 
         },
         logout: (state) => {
