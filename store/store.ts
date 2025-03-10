@@ -1,23 +1,24 @@
-import {configureStore} from '@reduxjs/toolkit';
+import { configureStore } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import authReducer from '@/store/slices/authSlices';
-import JobsReducer from '@/store/slices/jobsSlice';
-import ApplicationsReducer from '@/store/slices/applicationsSlice';
+import jobsReducer from '@/store/slices/jobsSlice';
+import applicationsReducer from '@/store/slices/applicationsSlice';
+import savedJobsReducer from '@/store/slices/savedJobsSlice';
 
 const persistConfig = {
     key: 'root',
     storage,
-  };
-  
+};
 
 const persistedAuthReducer = persistReducer(persistConfig, authReducer);
 
 export const store = configureStore({
     reducer: {
         auth: persistedAuthReducer,
-        jobs: JobsReducer,
-        applications: ApplicationsReducer,
+        jobs: jobsReducer,
+        applications: applicationsReducer,
+        savedJobs: savedJobsReducer,
     },
     middleware: (getDefaultMiddleware) => 
         getDefaultMiddleware({
